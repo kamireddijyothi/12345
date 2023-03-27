@@ -1,0 +1,165 @@
+`timescale 1ns / 1ps
+module Traffic_light(clk,rst,light_M1,light_M2,light_ST,light_MT,count,ps);
+input clk;
+input rst;
+output reg [3:0]count=0;
+output reg [2:0]ps;
+output reg[2:0]light_M1,light_M2,light_ST,light_MT;
+ parameter S1=0,S2=1,S3=2,S4=3,S5=4,S6=5;
+ 
+ 
+ parameter tmg=7,ttg=5,ty=2,tsg=3;
+    always@(posedge clk or posedge rst)
+    begin
+    if(rst==1)
+    begin
+    ps<=S1;
+    count<=0;
+    end
+    else
+    case(ps)
+    S1:if(count<tmg)
+            begin
+             ps<=S1;
+             count<=count+1;
+             end
+         else
+             begin
+             ps<=S2;
+             count<=0;
+              end
+     S2:if(count<ty)
+            begin
+             ps<=S2;
+             count<=count+1;
+             end
+         else
+             begin
+             ps<=S3;
+             count<=0;
+              end
+     S3:   if(count<ttg)
+            begin
+             ps<=S3;
+             count<=count+1;
+             end
+         else
+             begin
+             ps<=S4;
+             count<=0;
+              end
+   S4:    if(count<ty)
+            begin
+             ps<=S4;
+             count<=count+1;
+             end
+         else
+             begin
+             ps<=S5;
+             count<=0;
+              end
+ S5:  if(count<tsg)
+            begin
+             ps<=S5;
+             count<=count+1;
+             end
+         else
+             begin
+             ps<=S6;
+             count<=0;
+              end
+  S6:    if(count<ty)
+            begin
+             ps<=S6;
+             count<=count+1;
+             end
+         else
+             begin
+             ps<=S1;
+             count<=0;
+              end
+              default:ps<=S1;
+              endcase
+      end
+        always@(ps)
+        begin
+        case(ps)
+        S1:
+        begin
+           light_M1<=3'b001;
+           light_M2<=3'b001;
+           light_MT<=3'b100;
+          light_ST <=3'b100;
+           end
+    S2:
+        begin
+            light_M1<=3'b001;
+            light_M2<=3'b010;
+            light_MT<=3'b100;
+            light_ST<=3'b100;
+         end
+   S3:
+        begin
+            light_M1<=3'b001;
+            light_M2<=3'b100;
+            light_MT<=3'b001;
+            light_ST<=3'b100;
+         end
+    S4:
+          begin
+            light_M1<=3'b010;
+            light_M2<=3'b100;
+            light_MT<=3'b010;
+            light_ST<=3'b100;
+         end
+   S5:
+      begin
+             light_M1<= 3'b100;
+            light_M2 <=3'b100;
+            light_MT <=3'b100;
+            light_ST <=3'b001;
+         end
+     S6:
+         begin
+            light_M1 <=3'b100;
+            light_M2 <=3'b100;
+            light_MT <=3'b100;
+            light_ST <=3'b010;
+         end
+     default:
+        begin
+            light_M1 <=3'b000;
+            light_M2 <=3'b000;
+            light_MT <=3'b000;
+            light_ST <=3'b000;
+         end
+    endcase
+     end
+endmodule
+
+
+# TEST BENTCH CODE:
+module Traffic_ligth_tb();
+reg clk,rst;
+wire [2:0]light_M1;
+wire [2:0]light_M2;
+wire [2:0]light_MT;
+wire [2:0]light_ST;
+wire [3:0]count;
+wire [2:0]ps;
+Traffic_light  dut(.clk(clk), .rst(rst), .light_M1(light_M1), .light_ST(light_ST), .light_M2(light_M2), .light_MT(light_MT),.count(count),.ps(ps));
+initial 
+begin
+   clk =1'b0;
+forever  #5 clk = ~clk;
+end
+initial 
+begin
+rst=1'b1;
+#15;
+rst=1'b0;
+#1000;
+$finish;
+end
+endmodule
+
